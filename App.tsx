@@ -44,46 +44,47 @@ const App = () => {
   };
 
   const handleLogout = async () => {
-    const user = auth.currentUser();
-    if (user) {
-      await user.logout();
+    try {
+      const user = auth.currentUser();
+      if (user) {
+        await user.logout();
+      }
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error('Logout failed:', error);
+      setIsAuthenticated(false); // Force logout on UI anyway
     }
-    setIsAuthenticated(false);
-  } catch (error) {
-    console.error('Logout failed:', error);
-    setIsAuthenticated(false); // Force logout on UI anyway
-  }
-};
+  };
 
-if (loading) return <LoadingFallback />;
+  if (loading) return <LoadingFallback />;
 
-return (
-  <DataProvider>
-    <Router>
-      <Suspense fallback={<LoadingFallback />}>
-        <Routes>
-          <Route
-            path="/login"
-            // Pass the handleLogin to Login component using GoTrue
-            element={!isAuthenticated ? <Login onLogin={handleLogin} /> : <Navigate to="/" />}
-          />
+  return (
+    <DataProvider>
+      <Router>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route
+              path="/login"
+              // Pass the handleLogin to Login component using GoTrue
+              element={!isAuthenticated ? <Login onLogin={handleLogin} /> : <Navigate to="/" />}
+            />
 
-          {/* Protected Routes */}
-          <Route path="/" element={isAuthenticated ? <Layout onLogout={handleLogout}><Dashboard /></Layout> : <Navigate to="/login" />} />
-          <Route path="/workplace" element={isAuthenticated ? <Layout onLogout={handleLogout}><Workplace /></Layout> : <Navigate to="/login" />} />
-          <Route path="/clients" element={isAuthenticated ? <Layout onLogout={handleLogout}><Clients /></Layout> : <Navigate to="/login" />} />
-          <Route path="/cases" element={isAuthenticated ? <Layout onLogout={handleLogout}><Cases /></Layout> : <Navigate to="/login" />} />
-          <Route path="/tasks" element={isAuthenticated ? <Layout onLogout={handleLogout}><Tasks /></Layout> : <Navigate to="/login" />} />
-          <Route path="/documents" element={isAuthenticated ? <Layout onLogout={handleLogout}><Documents /></Layout> : <Navigate to="/login" />} />
-          <Route path="/settings" element={isAuthenticated ? <Layout onLogout={handleLogout}><Settings /></Layout> : <Navigate to="/login" />} />
+            {/* Protected Routes */}
+            <Route path="/" element={isAuthenticated ? <Layout onLogout={handleLogout}><Dashboard /></Layout> : <Navigate to="/login" />} />
+            <Route path="/workplace" element={isAuthenticated ? <Layout onLogout={handleLogout}><Workplace /></Layout> : <Navigate to="/login" />} />
+            <Route path="/clients" element={isAuthenticated ? <Layout onLogout={handleLogout}><Clients /></Layout> : <Navigate to="/login" />} />
+            <Route path="/cases" element={isAuthenticated ? <Layout onLogout={handleLogout}><Cases /></Layout> : <Navigate to="/login" />} />
+            <Route path="/tasks" element={isAuthenticated ? <Layout onLogout={handleLogout}><Tasks /></Layout> : <Navigate to="/login" />} />
+            <Route path="/documents" element={isAuthenticated ? <Layout onLogout={handleLogout}><Documents /></Layout> : <Navigate to="/login" />} />
+            <Route path="/settings" element={isAuthenticated ? <Layout onLogout={handleLogout}><Settings /></Layout> : <Navigate to="/login" />} />
 
-          {/* Fallback */}
-          <Route path="*" element={isAuthenticated ? <Navigate to="/" /> : <Navigate to="/login" />} />
-        </Routes>
-      </Suspense>
-    </Router>
-  </DataProvider>
-);
+            {/* Fallback */}
+            <Route path="*" element={isAuthenticated ? <Navigate to="/" /> : <Navigate to="/login" />} />
+          </Routes>
+        </Suspense>
+      </Router>
+    </DataProvider>
+  );
 };
 
 export default App;
