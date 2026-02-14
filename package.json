@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@types/netlify-identity-widget": "^1.9.7",
+    "gotrue-js": "^0.9.29",
     "lucide-react": "^0.344.0",
     "netlify-identity-widget": "^1.9.2",
     "react": "^18.2.0",
