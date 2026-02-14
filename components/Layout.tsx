@@ -1,23 +1,22 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, Users, Briefcase, CheckSquare, 
+import {
+  LayoutDashboard, Users, Briefcase, CheckSquare,
   Calendar, FileText, Bot, Settings, LogOut, Bell, Search, Menu, MapPin, X
 } from 'lucide-react';
 import { NAV_ITEMS } from '../constants';
 import { useData } from '../context/DataContext';
 
 const IconMap: Record<string, React.ElementType> = {
-  LayoutDashboard, Users, Briefcase, CheckSquare, 
+  LayoutDashboard, Users, Briefcase, CheckSquare,
   Calendar, FileText, Bot, Settings, MapPin
 };
 
 interface LayoutProps {
   children: React.ReactNode;
-  onLogout: () => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -72,7 +71,7 @@ const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
     <div className="flex h-screen bg-slate-50 overflow-hidden">
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-20 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
@@ -105,8 +104,8 @@ const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
                   onClick={() => setSidebarOpen(false)}
                   className={`
                     flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                    ${isActive 
-                      ? 'bg-amber-500 text-slate-900' 
+                    ${isActive
+                      ? 'bg-amber-500 text-slate-900'
                       : 'text-slate-400 hover:text-white hover:bg-slate-800'}
                   `}
                 >
@@ -117,9 +116,9 @@ const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
             })}
           </nav>
 
-          {/* User Profile / Logout */}
+          {/* User Profile */}
           <div className="p-4 border-t border-slate-800">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-slate-300">
                 AS
               </div>
@@ -128,13 +127,6 @@ const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
                 <p className="text-xs text-slate-400">Senior Partner</p>
               </div>
             </div>
-            <button 
-              onClick={onLogout}
-              className="w-full flex items-center justify-center px-4 py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </button>
           </div>
         </div>
       </aside>
@@ -143,18 +135,18 @@ const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 z-10">
-          <button 
+          <button
             className="lg:hidden p-2 text-slate-600"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="w-6 h-6" />
           </button>
-          
+
           <div className="flex-1 max-w-xl mx-4 lg:mx-0 hidden md:block" ref={searchRef}>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Search cases, clients, tasks or documents..."
                 className="w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
                 value={searchQuery}
@@ -162,71 +154,71 @@ const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
                 onFocus={() => setIsSearchOpen(true)}
               />
               {searchQuery && (
-                  <button onClick={clearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                      <X className="w-4 h-4" />
-                  </button>
+                <button onClick={clearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                  <X className="w-4 h-4" />
+                </button>
               )}
-              
+
               {/* Search Results Dropdown */}
               {isSearchOpen && searchQuery && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-slate-200 max-h-[400px] overflow-y-auto">
-                      {!hasResults ? (
-                          <div className="p-4 text-sm text-slate-500 text-center">No results found for "{searchQuery}"</div>
-                      ) : (
-                          <div className="py-2">
-                              {filteredResults.clients.length > 0 && (
-                                  <div className="px-2 mb-2">
-                                      <div className="text-xs font-semibold text-slate-400 uppercase px-2 py-1">Clients</div>
-                                      {filteredResults.clients.slice(0, 3).map(c => (
-                                          <button key={c.id} onClick={() => handleResultClick('/clients', c.name)} className="w-full text-left px-2 py-2 hover:bg-slate-50 rounded-lg flex items-center gap-2">
-                                              <Users className="w-4 h-4 text-slate-400" />
-                                              <span className="text-sm text-slate-700 truncate">{c.name}</span>
-                                          </button>
-                                      ))}
-                                  </div>
-                              )}
-                              
-                              {filteredResults.cases.length > 0 && (
-                                  <div className="px-2 mb-2">
-                                      <div className="text-xs font-semibold text-slate-400 uppercase px-2 py-1">Cases</div>
-                                      {filteredResults.cases.slice(0, 3).map(c => (
-                                          <button key={c.id} onClick={() => handleResultClick('/cases', c.title)} className="w-full text-left px-2 py-2 hover:bg-slate-50 rounded-lg flex items-center gap-2">
-                                              <Briefcase className="w-4 h-4 text-slate-400" />
-                                              <div className="min-w-0">
-                                                  <div className="text-sm text-slate-700 truncate">{c.title}</div>
-                                                  <div className="text-xs text-slate-400">{c.caseNumber}</div>
-                                              </div>
-                                          </button>
-                                      ))}
-                                  </div>
-                              )}
-
-                              {filteredResults.tasks.length > 0 && (
-                                  <div className="px-2 mb-2">
-                                      <div className="text-xs font-semibold text-slate-400 uppercase px-2 py-1">Tasks</div>
-                                      {filteredResults.tasks.slice(0, 3).map(t => (
-                                          <button key={t.id} onClick={() => handleResultClick('/tasks', t.title)} className="w-full text-left px-2 py-2 hover:bg-slate-50 rounded-lg flex items-center gap-2">
-                                              <CheckSquare className="w-4 h-4 text-slate-400" />
-                                              <span className="text-sm text-slate-700 truncate">{t.title}</span>
-                                          </button>
-                                      ))}
-                                  </div>
-                              )}
-
-                              {filteredResults.docs.length > 0 && (
-                                  <div className="px-2 mb-2">
-                                      <div className="text-xs font-semibold text-slate-400 uppercase px-2 py-1">Documents</div>
-                                      {filteredResults.docs.slice(0, 3).map(d => (
-                                          <button key={d.id} onClick={() => handleResultClick('/documents', d.name)} className="w-full text-left px-2 py-2 hover:bg-slate-50 rounded-lg flex items-center gap-2">
-                                              <FileText className="w-4 h-4 text-slate-400" />
-                                              <span className="text-sm text-slate-700 truncate">{d.name}</span>
-                                          </button>
-                                      ))}
-                                  </div>
-                              )}
-                          </div>
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-slate-200 max-h-[400px] overflow-y-auto">
+                  {!hasResults ? (
+                    <div className="p-4 text-sm text-slate-500 text-center">No results found for "{searchQuery}"</div>
+                  ) : (
+                    <div className="py-2">
+                      {filteredResults.clients.length > 0 && (
+                        <div className="px-2 mb-2">
+                          <div className="text-xs font-semibold text-slate-400 uppercase px-2 py-1">Clients</div>
+                          {filteredResults.clients.slice(0, 3).map(c => (
+                            <button key={c.id} onClick={() => handleResultClick('/clients', c.name)} className="w-full text-left px-2 py-2 hover:bg-slate-50 rounded-lg flex items-center gap-2">
+                              <Users className="w-4 h-4 text-slate-400" />
+                              <span className="text-sm text-slate-700 truncate">{c.name}</span>
+                            </button>
+                          ))}
+                        </div>
                       )}
-                  </div>
+
+                      {filteredResults.cases.length > 0 && (
+                        <div className="px-2 mb-2">
+                          <div className="text-xs font-semibold text-slate-400 uppercase px-2 py-1">Cases</div>
+                          {filteredResults.cases.slice(0, 3).map(c => (
+                            <button key={c.id} onClick={() => handleResultClick('/cases', c.title)} className="w-full text-left px-2 py-2 hover:bg-slate-50 rounded-lg flex items-center gap-2">
+                              <Briefcase className="w-4 h-4 text-slate-400" />
+                              <div className="min-w-0">
+                                <div className="text-sm text-slate-700 truncate">{c.title}</div>
+                                <div className="text-xs text-slate-400">{c.caseNumber}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {filteredResults.tasks.length > 0 && (
+                        <div className="px-2 mb-2">
+                          <div className="text-xs font-semibold text-slate-400 uppercase px-2 py-1">Tasks</div>
+                          {filteredResults.tasks.slice(0, 3).map(t => (
+                            <button key={t.id} onClick={() => handleResultClick('/tasks', t.title)} className="w-full text-left px-2 py-2 hover:bg-slate-50 rounded-lg flex items-center gap-2">
+                              <CheckSquare className="w-4 h-4 text-slate-400" />
+                              <span className="text-sm text-slate-700 truncate">{t.title}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {filteredResults.docs.length > 0 && (
+                        <div className="px-2 mb-2">
+                          <div className="text-xs font-semibold text-slate-400 uppercase px-2 py-1">Documents</div>
+                          {filteredResults.docs.slice(0, 3).map(d => (
+                            <button key={d.id} onClick={() => handleResultClick('/documents', d.name)} className="w-full text-left px-2 py-2 hover:bg-slate-50 rounded-lg flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-slate-400" />
+                              <span className="text-sm text-slate-700 truncate">{d.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>

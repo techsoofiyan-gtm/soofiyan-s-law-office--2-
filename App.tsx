@@ -1,10 +1,8 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { auth } from './utils/auth';
 import { DataProvider } from './context/DataContext';
 
 // Eager load critical components
-import Login from './components/Login';
 import Layout from './components/Layout';
 
 // Lazy load feature modules to improve initial load time
@@ -26,60 +24,22 @@ const LoadingFallback = () => (
 );
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Check if user is already logged in
-    const user = auth.currentUser();
-    if (user) {
-      setIsAuthenticated(true);
-    }
-    setLoading(false);
-  }, []);
-
-  const handleLogin = (user: any) => {
-    console.log('User logged in:', user);
-    setIsAuthenticated(true);
-  };
-
-  const handleLogout = async () => {
-    try {
-      const user = auth.currentUser();
-      if (user) {
-        await user.logout();
-      }
-      setIsAuthenticated(false);
-    } catch (error) {
-      console.error('Logout failed:', error);
-      setIsAuthenticated(false); // Force logout on UI anyway
-    }
-  };
-
-  if (loading) return <LoadingFallback />;
-
   return (
     <DataProvider>
       <Router>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
-            <Route
-              path="/login"
-              // Pass the handleLogin to Login component using GoTrue
-              element={!isAuthenticated ? <Login onLogin={handleLogin} /> : <Navigate to="/" />}
-            />
+            {/* Direct access to all routes without authentication */}
+            <Route path="/" element={<Layout><Dashboard /></Layout>} />
+            <Route path="/workplace" element={<Layout><Workplace /></Layout>} />
+            <Route path="/clients" element={<Layout><Clients /></Layout>} />
+            <Route path="/cases" element={<Layout><Cases /></Layout>} />
+            <Route path="/tasks" element={<Layout><Tasks /></Layout>} />
+            <Route path="/documents" element={<Layout><Documents /></Layout>} />
+            <Route path="/settings" element={<Layout><Settings /></Layout>} />
 
-            {/* Protected Routes */}
-            <Route path="/" element={isAuthenticated ? <Layout onLogout={handleLogout}><Dashboard /></Layout> : <Navigate to="/login" />} />
-            <Route path="/workplace" element={isAuthenticated ? <Layout onLogout={handleLogout}><Workplace /></Layout> : <Navigate to="/login" />} />
-            <Route path="/clients" element={isAuthenticated ? <Layout onLogout={handleLogout}><Clients /></Layout> : <Navigate to="/login" />} />
-            <Route path="/cases" element={isAuthenticated ? <Layout onLogout={handleLogout}><Cases /></Layout> : <Navigate to="/login" />} />
-            <Route path="/tasks" element={isAuthenticated ? <Layout onLogout={handleLogout}><Tasks /></Layout> : <Navigate to="/login" />} />
-            <Route path="/documents" element={isAuthenticated ? <Layout onLogout={handleLogout}><Documents /></Layout> : <Navigate to="/login" />} />
-            <Route path="/settings" element={isAuthenticated ? <Layout onLogout={handleLogout}><Settings /></Layout> : <Navigate to="/login" />} />
-
-            {/* Fallback */}
-            <Route path="*" element={isAuthenticated ? <Navigate to="/" /> : <Navigate to="/login" />} />
+            {/* Fallback to Dashboard */}
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Suspense>
       </Router>
