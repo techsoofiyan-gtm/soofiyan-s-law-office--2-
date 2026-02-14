@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import * as netlifyIdentity from 'netlify-identity-widget';
 import { DataProvider } from './context/DataContext';
 
 // Eager load critical components
@@ -29,22 +30,42 @@ const App = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check local storage for session simulation
-    const session = localStorage.getItem('lexflow_session');
-    if (session) {
+    // Initialize Netlify Identity
+    netlifyIdentity.init();
+
+    // Check if user is already logged in
+    const user = netlifyIdentity.currentUser();
+    if (user) {
       setIsAuthenticated(true);
     }
+
+    // Bind to login/logout events
+    netlifyIdentity.on('login', (user: any) => {
+      console.log('login', user);
+      setIsAuthenticated(true);
+      netlifyIdentity.close(); // Close modal on login
+    });
+
+    netlifyIdentity.on('logout', () => {
+      console.log('logout');
+      setIsAuthenticated(false);
+    });
+
     setLoading(false);
+
+    // Cleanup event listeners
+    return () => {
+      netlifyIdentity.off('login');
+      netlifyIdentity.off('logout');
+    };
   }, []);
 
   const handleLogin = () => {
-    localStorage.setItem('lexflow_session', 'true');
-    setIsAuthenticated(true);
+    netlifyIdentity.open('login');
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('lexflow_session');
-    setIsAuthenticated(false);
+    netlifyIdentity.logout();
   };
 
   if (loading) return <LoadingFallback />;
@@ -54,11 +75,11 @@ const App = () => {
       <Router>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
-            <Route 
-              path="/login" 
-              element={!isAuthenticated ? <Login onLogin={handleLogin} /> : <Navigate to="/" />} 
+            <Route
+              path="/login"
+              element={!isAuthenticated ? <Login onLogin={handleLogin} /> : <Navigate to="/" />}
             />
-            
+
             {/* Protected Routes */}
             <Route path="/" element={isAuthenticated ? <Layout onLogout={handleLogout}><Dashboard /></Layout> : <Navigate to="/login" />} />
             <Route path="/workplace" element={isAuthenticated ? <Layout onLogout={handleLogout}><Workplace /></Layout> : <Navigate to="/login" />} />
@@ -67,7 +88,7 @@ const App = () => {
             <Route path="/tasks" element={isAuthenticated ? <Layout onLogout={handleLogout}><Tasks /></Layout> : <Navigate to="/login" />} />
             <Route path="/documents" element={isAuthenticated ? <Layout onLogout={handleLogout}><Documents /></Layout> : <Navigate to="/login" />} />
             <Route path="/settings" element={isAuthenticated ? <Layout onLogout={handleLogout}><Settings /></Layout> : <Navigate to="/login" />} />
-            
+
             {/* Fallback */}
             <Route path="*" element={isAuthenticated ? <Navigate to="/" /> : <Navigate to="/login" />} />
           </Routes>
