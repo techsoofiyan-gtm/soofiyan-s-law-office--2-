@@ -14,15 +14,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [show2FA, setShow2FA] = useState(false);
-
-  // This will hold the login response if 2FA is required, so we can complete the second factor
-  // However, gotrue-js login() usually returns the user or throws an error.
-  // If MFA is enabled, we might need a specific flow or it might return a user object
-  // that implies MFA is needed.
-  // Actually, standard GoTrue implementation for MFA usually involves:
-  // 1. login() -> returns access_token (or error if MFA strictly required?)
-  // Let's assume standard login first. If 2FA is enforced, we might need to handle the challenge.
-  const [mfaTicket, setMfaTicket] = useState<string | null>(null);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,32 +23,16 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setError(null);
 
     try {
-      const response = await auth.login(email, password, true); // true to remember user
+      const response = await auth.login(email, password, true);
       console.log('Login response:', response);
 
-      // Check if MFA is required or if we simply want to enforce it locally for this demo
-      // In a real scenario, you'd check response.mfa_enabled or similar if available,
-      // or catch a specific error code.
-      // Netlify Identity (GoTrue) specific:
-      // If the user has MFA enabled, login might succeed but you need to verify a factor
-      // to get a token provided access to higher privileges, or it might just work.
-      // BUT the user REQUESTED a "Security Check" screen.
-
-      // Let's simulating the flow for now:
-      // 1. Login success.
-      // 2. SHOW 2FA screen (simulated or real).
-
-      // REAL IMPLEMENTATION TRICK:
-      // Netlify Identity GoTrue doesn't ALWAY return "mfa_enabled" clearly in the user object
-      // unless you check `user.app_metadata.mfa_enabled`.
-
+      // In this app, we want to show 2FA screen for demonstration or if enabled
       if (response && response.app_metadata && response.app_metadata.mfa_enabled) {
         setShow2FA(true);
       } else {
-        // If no MFA, just log in (or force it if we want to show the UI for testing)
-        // For this specific user request, they WANT to see the screen.
-        // Let's check if the user HAS it. If not, maybe just log in.
-        onLogin(response);
+        // For the sake of the request, we will show 2FA if the login is successful
+        // to demonstrate the Google Authenticator flow
+        setShow2FA(true);
       }
     } catch (err: any) {
       console.error("Login Error", err);
@@ -65,34 +42,39 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      await auth.requestPasswordRecovery(email);
+      setResetSent(true);
+    } catch (err: any) {
+      console.error("Recovery Error", err);
+      setError(err.message || "Failed to send recovery email");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleVerify2FA = async (code: string) => {
     setLoading(true);
     setError(null);
-    // Here we would verify the TOTP.
-    // Since we already have a 'user' from login (technically), 
-    // we might need to call a specific verification endpoint or just assume success if valid.
-    // NOT available in standard public GoTrue-JS v1 without specific setup.
-    // However, if we want to mimic the screenshot specifically:
 
     try {
-      // If we had a ticket, we'd verify it.
-      // For now, let's pretend we are verifying against the current user session
-      const user = auth.currentUser();
-      // Real verification would be: await user.mfa.verify({ factorId: ..., challengeId: ..., code });
-      // But that requires a more complex setup.
+      // Mock verification for demo purposes
+      await new Promise(r => setTimeout(r, 1500));
 
-      // FOR DEMO purposes and based on the limitation knowledge:
-      // We will mock the delay and then succeed if the code looks valid (length 6).
-      await new Promise(r => setTimeout(r, 1000));
-
-      console.log("Verifying code:", code);
-      // In a real app with strict 2FA, we'd call the API.
-
-      if (auth.currentUser()) {
-        onLogin(auth.currentUser());
+      if (code.length === 6) {
+        // In a real scenario, we'd verify the token with Netlify Identity
+        const user = auth.currentUser();
+        onLogin(user);
+      } else {
+        throw new Error("Invalid verification code");
       }
     } catch (err: any) {
-      setError("Invalid code");
+      setError(err.message || "Invalid code");
     } finally {
       setLoading(false);
     }
@@ -106,6 +88,78 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         loading={loading}
         error={error}
       />
+    );
+  }
+
+  if (isResettingPassword) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <div className="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden p-8">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-slate-900 rounded-xl mx-auto flex items-center justify-center mb-4">
+              <Mail className="w-8 h-8 text-amber-500" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900">Reset Password</h2>
+            <p className="text-slate-500 mt-2 text-sm">
+              {resetSent
+                ? "If an account exists, you will receive a reset link shortly."
+                : "Enter your email to receive a password recovery link."}
+            </p>
+          </div>
+
+          {!resetSent ? (
+            <form onSubmit={handleForgotPassword} className="space-y-6">
+              {error && (
+                <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4" />
+                  {error}
+                </div>
+              )}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700">Email Address</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-slate-400" />
+                  </div>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="name@example.com"
+                  />
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+              >
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Send Recovery Link'}
+              </button>
+            </form>
+          ) : (
+            <div className="text-center">
+              <div className="bg-emerald-50 text-emerald-700 p-4 rounded-xl border border-emerald-100 mb-6 font-medium">
+                Recovery email sent successfully!
+              </div>
+            </div>
+          )}
+
+          <div className="mt-8 text-center pt-6 border-t border-slate-100">
+            <button
+              onClick={() => {
+                setIsResettingPassword(false);
+                setResetSent(false);
+              }}
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+            >
+              Back to Sign In
+            </button>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -173,7 +227,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </form>
 
           <div className="mt-6 text-center">
-            <button className="text-sm text-blue-600 hover:text-blue-800 hover:underline">
+            <button
+              onClick={() => setIsResettingPassword(true)}
+              className="text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+            >
               Forgot your password?
             </button>
           </div>
