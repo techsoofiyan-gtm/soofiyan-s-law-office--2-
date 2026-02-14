@@ -11,7 +11,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     // Initialize Netlify Identity
     netlifyIdentity.init({
       locale: 'en',
-      APIUrl: 'https://soofiyan-law-office.netlify.app/.netlify/identity'
+      APIUrl: 'https://offfice.netlify.app/.netlify/identity'
     });
 
     // Handle login event
