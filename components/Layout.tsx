@@ -2,14 +2,14 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Briefcase, CheckSquare,
-  Calendar, FileText, Bot, Settings, LogOut, Bell, Search, Menu, MapPin, X
+  Calendar, FileText, Bot, Settings, LogOut, Bell, Search, Menu, MapPin, X, FileEdit
 } from 'lucide-react';
 import { NAV_ITEMS } from '../constants';
 import { useData } from '../context/DataContext';
 
 const IconMap: Record<string, React.ElementType> = {
   LayoutDashboard, Users, Briefcase, CheckSquare,
-  Calendar, FileText, Bot, Settings, MapPin
+  Calendar, FileText, Bot, Settings, MapPin, FileEdit
 };
 
 interface LayoutProps {

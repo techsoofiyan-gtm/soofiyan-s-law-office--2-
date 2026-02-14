@@ -55,7 +55,7 @@ export interface Case {
   caseStudy?: string;
   policeStation?: string;
   cnrNumber?: string;
-  
+
   workplace?: string; // Added workplace field
 
   courtType?: string; // District, High, Supreme, Other
@@ -63,9 +63,9 @@ export interface Case {
   courtNumber?: string;
   actSection?: string;
   firNumber?: string;
-  
+
   isActive?: boolean;
-  
+
   relatedCaseNumber?: string;
   otherRequirements?: string;
   notes?: string;
@@ -96,6 +96,8 @@ export interface LegalDocument {
   caseId?: string;
   clientId?: string;
   tags: string[];
+  content?: string;
+  font?: string;
 }
 
 export interface User {

@@ -13,6 +13,7 @@ const Tasks = lazy(() => import('./components/Tasks'));
 const Documents = lazy(() => import('./components/Documents'));
 const Workplace = lazy(() => import('./components/Workplace'));
 const Settings = lazy(() => import('./components/Settings'));
+const TextEditor = lazy(() => import('./components/TextEditor'));
 
 const LoadingFallback = () => (
   <div className="flex h-screen w-full items-center justify-center bg-slate-50">
@@ -36,6 +37,7 @@ const App = () => {
             <Route path="/tasks" element={<Layout><Tasks /></Layout>} />
             <Route path="/documents" element={<Layout><Documents /></Layout>} />
             <Route path="/settings" element={<Layout><Settings /></Layout>} />
+            <Route path="/editor" element={<Layout><TextEditor /></Layout>} />
 
             {/* Fallback to Dashboard */}
             <Route path="*" element={<Navigate to="/" />} />

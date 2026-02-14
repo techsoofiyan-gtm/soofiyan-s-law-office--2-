@@ -36,6 +36,7 @@ export const NAV_ITEMS = [
   { label: 'Task Board', path: '/tasks', icon: 'CheckSquare' },
   { label: 'Calendar', path: '/calendar', icon: 'Calendar' },
   { label: 'Documents', path: '/documents', icon: 'FileText' },
+  { label: 'Text Editor', path: '/editor', icon: 'FileEdit' },
   { label: 'AI Assistant', path: '/ai-tools', icon: 'Bot' },
   { label: 'Settings', path: '/settings', icon: 'Settings' },
 ];
