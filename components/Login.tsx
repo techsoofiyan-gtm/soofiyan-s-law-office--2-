@@ -29,8 +29,11 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </div>
 
           <button
-            onClick={onLogin}
-            className="w-full bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-colors focus:ring-4 focus:ring-slate-900/20 flex items-center justify-center gap-2"
+            onClick={() => {
+              console.log('Button clicked in component!');
+              onLogin();
+            }}
+            className="w-full bg-slate-900 text-white font-semibold py-3 rounded-lg hover:bg-slate-800 transition-colors focus:ring-4 focus:ring-slate-900/20 flex items-center justify-center gap-2 relative z-50"
           >
             Sign In with Netlify Identity
           </button>

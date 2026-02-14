@@ -30,8 +30,16 @@ const App = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Debug: Check what netlifyIdentity is
+    console.log('Netlify Identity Object:', netlifyIdentity);
+
     // Initialize Netlify Identity
-    netlifyIdentity.init();
+    try {
+      netlifyIdentity.init();
+      console.log('Netlify Identity Initialized');
+    } catch (e) {
+      console.error('Netlify Identity Init Failed:', e);
+    }
 
     // Check if user is already logged in
     const user = netlifyIdentity.currentUser();
@@ -61,7 +69,13 @@ const App = () => {
   }, []);
 
   const handleLogin = () => {
-    netlifyIdentity.open('login');
+    console.log('Attempting to open Netlify Identity Login...');
+    try {
+      netlifyIdentity.open('login');
+      console.log('Netlify Identity Open called');
+    } catch (e) {
+      console.error('Netlify Identity Open Failed:', e);
+    }
   };
 
   const handleLogout = () => {
