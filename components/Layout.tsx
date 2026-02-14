@@ -14,9 +14,10 @@ const IconMap: Record<string, React.ElementType> = {
 
 interface LayoutProps {
   children: React.ReactNode;
+  onLogout: () => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -118,7 +119,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
           {/* User Profile */}
           <div className="p-4 border-t border-slate-800">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-slate-300">
                 AS
               </div>
@@ -127,6 +128,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <p className="text-xs text-slate-400">Senior Partner</p>
               </div>
             </div>
+            <button
+              onClick={onLogout}
+              className="w-full flex items-center justify-center px-4 py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </button>
           </div>
         </div>
       </aside>
