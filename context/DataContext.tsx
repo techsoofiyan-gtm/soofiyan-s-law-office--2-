@@ -85,7 +85,7 @@ function caseToDb(c: Partial<Case>): Record<string, any> {
   const row: Record<string, any> = {};
   if (c.caseNumber !== undefined) row.case_number = c.caseNumber;
   if (c.title !== undefined) row.title = c.title;
-  if (c.clientId !== undefined) row.client_id = c.clientId;
+  if (c.clientId !== undefined) row.client_id = c.clientId || null;
   if (c.clientName !== undefined) row.client_name = c.clientName;
   if (c.court !== undefined) row.court = c.court;
   if (c.type !== undefined) row.type = c.type;
@@ -130,8 +130,8 @@ function dbToTask(row: any): Task {
 function taskToDb(t: Partial<Task>): Record<string, any> {
   const row: Record<string, any> = {};
   if (t.title !== undefined) row.title = t.title;
-  if (t.caseId !== undefined) row.case_id = t.caseId;
-  if (t.clientId !== undefined) row.client_id = t.clientId;
+  if (t.caseId !== undefined) row.case_id = t.caseId || null;
+  if (t.clientId !== undefined) row.client_id = t.clientId || null;
   if (t.dueDate !== undefined) row.due_date = t.dueDate;
   if (t.priority !== undefined) row.priority = t.priority;
   if (t.status !== undefined) row.status = t.status;
@@ -187,8 +187,8 @@ function docToDb(d: Partial<LegalDocument>): Record<string, any> {
   if (d.type !== undefined) row.type = d.type;
   if (d.size !== undefined) row.size = d.size;
   if (d.uploadDate !== undefined) row.upload_date = d.uploadDate;
-  if (d.caseId !== undefined) row.case_id = d.caseId;
-  if (d.clientId !== undefined) row.client_id = d.clientId;
+  if (d.caseId !== undefined) row.case_id = d.caseId || null;
+  if (d.clientId !== undefined) row.client_id = d.clientId || null;
   if (d.tags !== undefined) row.tags = d.tags;
   if (d.content !== undefined) row.content = d.content;
   if (d.font !== undefined) row.font = d.font;
