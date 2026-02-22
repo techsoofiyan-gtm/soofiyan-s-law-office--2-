@@ -1,10 +1,15 @@
 import { useState, useMemo } from 'react';
 import { useData } from '../context/DataContext';
 import { ChevronLeft, ChevronRight, Briefcase, CheckSquare } from 'lucide-react';
+import Modal from './Modal';
+import TaskForm from './TaskForm';
+import { TaskStatus } from '../types';
 
 const Calendar = () => {
     const { cases, tasks } = useData();
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
     const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
     const firstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
@@ -58,6 +63,17 @@ const Calendar = () => {
     const prevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
     const goToToday = () => setCurrentDate(new Date());
 
+    const handleDateDoubleClick = (day: number, month: number, year: number) => {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        setSelectedDate(dateStr);
+        setIsModalOpen(true);
+    };
+
+    const handleFormSuccess = () => {
+        setIsModalOpen(false);
+        setSelectedDate(null);
+    };
+
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     return (
@@ -95,7 +111,9 @@ const Calendar = () => {
                         return (
                             <div
                                 key={idx}
-                                className={`min-h-[100px] p-2 border-b border-r border-slate-100 transition-colors hover:bg-slate-50/50 flex flex-col ${!data.isCurrentMonth ? 'bg-slate-50/30' : ''}`}
+                                onDoubleClick={() => handleDateDoubleClick(data.day, data.month, data.year)}
+                                title="Double-click to create task"
+                                className={`min-h-[100px] p-2 border-b border-r border-slate-100 transition-colors hover:bg-slate-50/50 flex flex-col group cursor-pointer ${!data.isCurrentMonth ? 'bg-slate-50/30' : ''}`}
                             >
                                 <div className="flex justify-between items-start mb-1">
                                     <span className={`text-sm font-semibold w-7 h-7 flex items-center justify-center rounded-full ${isToday ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' :
@@ -136,6 +154,18 @@ const Calendar = () => {
                     <span>Task Deadlines</span>
                 </div>
             </div>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="New Task">
+                <TaskForm
+                    initialData={{
+                        dueDate: selectedDate || undefined,
+                        deadline: selectedDate || undefined,
+                        workingDay: selectedDate || undefined,
+                        status: TaskStatus.TODO
+                    }}
+                    onSuccess={handleFormSuccess}
+                    onCancel={() => setIsModalOpen(false)}
+                />
+            </Modal>
         </div>
     );
 };

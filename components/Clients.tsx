@@ -30,18 +30,23 @@ const Clients = () => {
     client.email.toLowerCase().includes(searchTerm.toLowerCase())
   ), [clients, searchTerm]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingId) {
-      updateClient(editingId, formData);
-    } else {
-      addClient({
-        ...formData,
-        status: 'Active',
-        lastContact: new Date().toISOString().split('T')[0]
-      });
+    try {
+      if (editingId) {
+        await updateClient(editingId, formData);
+      } else {
+        await addClient({
+          ...formData,
+          status: 'Active',
+          lastContact: new Date().toISOString().split('T')[0]
+        });
+      }
+      closeModal();
+    } catch (err: any) {
+      console.error('Client operation failed:', err);
+      alert('Failed to save client: ' + (err.message || 'Unknown error'));
     }
-    closeModal();
   };
 
   const openAddModal = () => {
@@ -128,16 +133,16 @@ const Clients = () => {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${client.type === 'Corporate'
-                          ? 'bg-purple-50 text-purple-700 border border-purple-100'
-                          : 'bg-blue-50 text-blue-700 border border-blue-100'
+                        ? 'bg-purple-50 text-purple-700 border border-purple-100'
+                        : 'bg-blue-50 text-blue-700 border border-blue-100'
                         }`}>
                         {client.type}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${client.status === 'Active'
-                          ? 'bg-emerald-50 text-emerald-700'
-                          : 'bg-slate-100 text-slate-600'
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : 'bg-slate-100 text-slate-600'
                         }`}>
                         {client.status}
                       </span>

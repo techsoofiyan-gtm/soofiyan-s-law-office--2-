@@ -40,3 +40,5 @@ export const NAV_ITEMS = [
   { label: 'AI Assistant', path: '/ai-tools', icon: 'Bot' },
   { label: 'Settings', path: '/settings', icon: 'Settings' },
 ];
+
+export const COURTS = ["Mati court", "Kanpur court", "Ghatampur court"];
