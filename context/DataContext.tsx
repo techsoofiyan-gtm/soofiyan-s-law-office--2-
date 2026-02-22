@@ -31,6 +31,8 @@ interface DataContextType {
   updateTask: (id: string, task: Partial<Task>) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
 
+  downloadDocument: (doc: LegalDocument) => void;
+
   addDocument: (doc: Omit<LegalDocument, 'id'>) => Promise<void>;
   deleteDocument: (id: string) => Promise<void>;
 
@@ -379,12 +381,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await supabase.from('cases').insert(dbRow).select().single();
       if (error) throw error;
 
-      // Sync hearing to Google Calendar
-      const eventId = await syncCaseHearing({ ...caseItem }, null);
-      if (eventId) {
-        await supabase.from('cases').update({ google_calendar_event_id: eventId }).eq('id', data.id);
-        data.google_calendar_event_id = eventId;
-      }
+      // Sync hearing to Google Calendar (don't let this block the main flow)
+      syncCaseHearing({ ...caseItem }, null).then(async (eventId) => {
+        if (eventId) {
+          await supabase.from('cases').update({ google_calendar_event_id: eventId }).eq('id', data.id);
+          setCases(prev => prev.map(c => c.id === data.id ? { ...c, googleCalendarEventId: eventId } : c));
+        }
+      }).catch(console.warn);
 
       setCases(prev => [...prev, dbToCase(data)]);
     } else {
@@ -456,12 +459,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await supabase.from('tasks').insert(taskToDb(task)).select().single();
       if (error) throw error;
 
-      // Sync to Google Calendar
-      const eventId = await syncTaskDeadline({ ...task }, null);
-      if (eventId) {
-        await supabase.from('tasks').update({ google_calendar_event_id: eventId }).eq('id', data.id);
-        data.google_calendar_event_id = eventId;
-      }
+      // Sync to Google Calendar (don't let this block)
+      syncTaskDeadline({ ...task }, null).then(async (eventId) => {
+        if (eventId) {
+          await supabase.from('tasks').update({ google_calendar_event_id: eventId }).eq('id', data.id);
+          setTasks(prev => prev.map(t => t.id === data.id ? { ...t, googleCalendarEventId: eventId } : t));
+        }
+      }).catch(console.warn);
 
       setTasks(prev => [...prev, dbToTask(data)]);
     } else {
@@ -555,6 +559,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
+  const downloadDocument = useCallback((doc: LegalDocument) => {
+    if (!doc.content) {
+      alert("This file was uploaded as metadata-only and has no stored content to download. Please use the Editor for downloadable files.");
+      return;
+    }
+    const blob = new Blob([doc.content], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = doc.name;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
+
   // ── Context Value ────────────────────────────────────────────────
 
   const value = useMemo(() => ({
@@ -562,7 +580,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     addClient, updateClient, deleteClient,
     addCase, updateCase, deleteCase,
     addTask, updateTask, deleteTask,
-    addDocument, deleteDocument,
+    addDocument, deleteDocument, downloadDocument,
     gcalConnected, gcalConnecting, gcalError,
     connectGoogleCalendar, disconnectGoogleCalendar,
     supabaseReady,
@@ -571,7 +589,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     addClient, updateClient, deleteClient,
     addCase, updateCase, deleteCase,
     addTask, updateTask, deleteTask,
-    addDocument, deleteDocument,
+    addDocument, deleteDocument, downloadDocument,
     gcalConnected, gcalConnecting, gcalError,
     connectGoogleCalendar, disconnectGoogleCalendar,
     supabaseReady,

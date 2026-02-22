@@ -6,7 +6,7 @@ import Modal from './Modal';
 import { LegalDocument } from '../types';
 
 const Documents = () => {
-    const { documents, cases, clients, addDocument, deleteDocument } = useData();
+    const { documents, cases, clients, addDocument, deleteDocument, downloadDocument } = useData();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
@@ -39,9 +39,9 @@ const Documents = () => {
         setSelectedFolderId(null);
     }, [activeTab]);
 
-    const filteredDocs = useMemo(() => documents.filter(doc =>
+    const filteredDocs = useMemo(() => documents.filter((doc: LegalDocument) =>
         doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (doc.tags && doc.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase())))
+        (doc.tags && doc.tags.some((t: string) => t.toLowerCase().includes(searchTerm.toLowerCase())))
     ), [documents, searchTerm]);
 
     const handleUpload = (e: React.FormEvent) => {
@@ -58,7 +58,7 @@ const Documents = () => {
         // Auto-link client if case is selected
         let finalClientId = uploadForm.clientId;
         if (uploadForm.caseId && !finalClientId) {
-            const selectedCase = cases.find(c => c.id === uploadForm.caseId);
+            const selectedCase = cases.find((c: any) => c.id === uploadForm.caseId);
             if (selectedCase) finalClientId = selectedCase.clientId;
         }
 
@@ -77,9 +77,7 @@ const Documents = () => {
     };
 
     const handleDownload = (doc: LegalDocument) => {
-        // Simulation of download
-        const msg = `Downloading file: ${doc.name}\nSize: ${doc.size}\nType: ${doc.type}`;
-        alert(msg);
+        downloadDocument(doc);
     };
 
     const openUploadModal = () => {
@@ -89,7 +87,7 @@ const Documents = () => {
 
         if (activeTab === 'cases' && selectedFolderId) {
             prefillCase = selectedFolderId;
-            const c = cases.find(x => x.id === selectedFolderId);
+            const c = cases.find((x: any) => x.id === selectedFolderId);
             if (c) prefillClient = c.clientId;
         } else if (activeTab === 'clients' && selectedFolderId) {
             prefillClient = selectedFolderId;
