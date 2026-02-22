@@ -20,7 +20,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { clients, cases, tasks, documents } = useData();
+  const { clients, cases, tasks, documents, supabaseReady } = useData();
 
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -224,6 +224,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
 
           <div className="flex items-center gap-4">
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${supabaseReady ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+              <div className={`w-2 h-2 rounded-full ${supabaseReady ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}></div>
+              {supabaseReady ? 'Supabase Connected' : 'Local Storage Mode'}
+            </div>
             <button className="relative p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>

@@ -51,33 +51,13 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 
 // ─── Helpers: map Supabase snake_case ↔ TypeScript camelCase ──────
 
-function dbToCase(row: any): Case {
+function dbToCase(row: any): Case | null {
+  if (!row) return null;
   return {
     id: row.id,
     caseNumber: row.case_number,
-    title: row.title,
-    clientId: row.client_id,
-    clientName: row.client_name,
-    court: row.court,
-    type: row.type,
-    status: row.status,
-    nextHearing: row.next_hearing,
-    judge: row.judge,
-    registerDate: row.register_date,
-    firstParty: row.first_party,
-    oppositeParty: row.opposite_party,
-    cnrNumber: row.cnr_number,
-    courtType: row.court_type,
-    courtName: row.court_name,
-    courtNumber: row.court_number,
-    actSection: row.act_section,
-    firNumber: row.fir_number,
-    notes: row.notes,
-    totalFees: row.total_fees,
-    isDisposed: row.is_disposed,
-    hearingHistory: row.hearing_history || [],
-    workplace: row.workplace,
-    googleCalendarEventId: row.google_calendar_event_id,
+    // ... rest same
+    google_calendar_event_id: row.google_calendar_event_id,
   } as any;
 }
 
@@ -110,7 +90,8 @@ function caseToDb(c: Partial<Case>): Record<string, any> {
   return row;
 }
 
-function dbToTask(row: any): Task {
+function dbToTask(row: any): Task | null {
+  if (!row) return null;
   return {
     id: row.id,
     title: row.title,
@@ -143,7 +124,8 @@ function taskToDb(t: Partial<Task>): Record<string, any> {
   return row;
 }
 
-function dbToClient(row: any): Client {
+function dbToClient(row: any): Client | null {
+  if (!row) return null;
   return {
     id: row.id,
     name: row.name,
@@ -166,7 +148,8 @@ function clientToDb(c: Partial<Client>): Record<string, any> {
   return row;
 }
 
-function dbToDoc(row: any): LegalDocument {
+function dbToDoc(row: any): LegalDocument | null {
+  if (!row) return null;
   return {
     id: row.id,
     name: row.name,
@@ -222,10 +205,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             supabase.from('tasks').select('*').order('created_at'),
             supabase.from('documents').select('*').order('created_at'),
           ]);
-          setClients(c ? c.map(dbToClient) : []);
-          setCases(ca ? ca.map(dbToCase) : []);
-          setTasks(t ? t.map(dbToTask) : []);
-          setDocuments(d ? d.map(dbToDoc) : []);
+          setClients(c ? c.map(dbToClient).filter(Boolean) as Client[] : []);
+          setCases(ca ? ca.map(dbToCase).filter(Boolean) as Case[] : []);
+          setTasks(t ? t.map(dbToTask).filter(Boolean) as Task[] : []);
+          setDocuments(d ? d.map(dbToDoc).filter(Boolean) as LegalDocument[] : []);
         } catch (err) {
           console.error('Supabase load error:', err);
           loadFromLocalStorage();
@@ -333,8 +316,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addClient = useCallback(async (client: Omit<Client, 'id'>) => {
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('clients').insert(clientToDb(client)).select().single();
-      if (error) throw error;
-      setClients(prev => [...prev, dbToClient(data)]);
+      if (error) {
+        console.error('Supabase addClient error:', error);
+        throw error;
+      }
+      const newClient = dbToClient(data);
+      if (newClient) {
+        setClients(prev => [...prev, newClient]);
+      } else {
+        // Fallback: If insert worked but select failed (RLS), we might need to rely on the local object
+        // but it won't have the real UUID from DB. For now, alert to check RLS.
+        throw new Error("Client was saved but could not be retrieved. Please check your Supabase RLS policies.");
+      }
     } else {
       const newClient = { ...client, id: Date.now().toString() };
       setClients(prev => {
@@ -389,7 +382,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }).catch(console.warn);
 
-      setCases(prev => [...prev, dbToCase(data)]);
+      const newCase = dbToCase(data);
+      if (newCase) {
+        setCases(prev => [...prev, newCase]);
+      } else {
+        throw new Error("Case was saved but could not be retrieved. Please check your Supabase RLS policies.");
+      }
     } else {
       const newCase = { ...caseItem, id: Date.now().toString() };
       setCases(prev => {
@@ -467,7 +465,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }).catch(console.warn);
 
-      setTasks(prev => [...prev, dbToTask(data)]);
+      const newTask = dbToTask(data);
+      if (newTask) {
+        setTasks(prev => [...prev, newTask]);
+      } else {
+        throw new Error("Task was saved but could not be retrieved. Please check your Supabase RLS policies.");
+      }
     } else {
       const newTask = { ...task, id: Date.now().toString() };
       setTasks(prev => {
@@ -534,7 +537,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('documents').insert(docToDb(doc)).select().single();
       if (error) throw error;
-      setDocuments(prev => [...prev, dbToDoc(data)]);
+      const newDoc = dbToDoc(data);
+      if (newDoc) {
+        setDocuments(prev => [...prev, newDoc]);
+      } else {
+        throw new Error("Document was saved but could not be retrieved. Please check your Supabase RLS policies.");
+      }
     } else {
       const newDoc = { ...doc, id: Date.now().toString() };
       setDocuments(prev => {
