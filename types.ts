@@ -85,6 +85,8 @@ export interface Task {
   status: TaskStatus;
   assignee: string;
   workplace?: string;
+  deadline?: string;   // Hard deadline date (YYYY-MM-DD)
+  workingDay?: string; // Specific action/working date (YYYY-MM-DD)
 }
 
 export interface LegalDocument {
