@@ -10,10 +10,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.97.0",
-    "@types/netlify-identity-widget": "^1.9.7",
-    "gotrue-js": "^0.9.29",
     "lucide-react": "^0.344.0",
-    "netlify-identity-widget": "^1.9.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.3"
