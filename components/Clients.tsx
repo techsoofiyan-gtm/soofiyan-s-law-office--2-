@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useData } from '../context/DataContext';
-import { Search, Plus, Phone, Mail, MoreHorizontal, FileText, Trash2, Edit } from 'lucide-react';
+import { Search, Plus, Phone, Mail, FileText, Trash2, Edit } from 'lucide-react';
 import Modal from './Modal';
 import { Client } from '../types';
 
@@ -25,7 +25,7 @@ const Clients = () => {
     type: 'Individual' as 'Individual' | 'Corporate'
   });
 
-  const filteredClients = useMemo(() => clients.filter(client => 
+  const filteredClients = useMemo(() => clients.filter(client =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.email.toLowerCase().includes(searchTerm.toLowerCase())
   ), [clients, searchTerm]);
@@ -33,13 +33,13 @@ const Clients = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingId) {
-        updateClient(editingId, formData);
+      updateClient(editingId, formData);
     } else {
-        addClient({
-            ...formData,
-            status: 'Active',
-            lastContact: new Date().toISOString().split('T')[0]
-        });
+      addClient({
+        ...formData,
+        status: 'Active',
+        lastContact: new Date().toISOString().split('T')[0]
+      });
     }
     closeModal();
   };
@@ -52,11 +52,11 @@ const Clients = () => {
 
   const openEditModal = (client: Client) => {
     setEditingId(client.id);
-    setFormData({ 
-        name: client.name, 
-        email: client.email, 
-        phone: client.phone, 
-        type: client.type 
+    setFormData({
+      name: client.name,
+      email: client.email,
+      phone: client.phone,
+      type: client.type
     });
     setIsModalOpen(true);
   }
@@ -70,9 +70,9 @@ const Clients = () => {
           <h1 className="text-2xl font-bold text-slate-900">Clients</h1>
           <p className="text-slate-500 mt-1">Manage your individual and corporate clients.</p>
         </div>
-        <button 
-            onClick={openAddModal}
-            className="inline-flex items-center px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
+        <button
+          onClick={openAddModal}
+          className="inline-flex items-center px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Client
@@ -84,8 +84,8 @@ const Clients = () => {
         <div className="p-4 border-b border-slate-200 bg-slate-50/50">
           <div className="max-w-md relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Search clients..."
               className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               value={searchTerm}
@@ -127,39 +127,37 @@ const Clients = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                        client.type === 'Corporate' 
-                          ? 'bg-purple-50 text-purple-700 border border-purple-100' 
+                      <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${client.type === 'Corporate'
+                          ? 'bg-purple-50 text-purple-700 border border-purple-100'
                           : 'bg-blue-50 text-blue-700 border border-blue-100'
-                      }`}>
+                        }`}>
                         {client.type}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        client.status === 'Active' 
-                          ? 'bg-emerald-50 text-emerald-700' 
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${client.status === 'Active'
+                          ? 'bg-emerald-50 text-emerald-700'
                           : 'bg-slate-100 text-slate-600'
-                      }`}>
+                        }`}>
                         {client.status}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                       <div className="flex items-center gap-2">
-                           <FileText className="w-4 h-4 text-slate-400" />
-                           <span className="font-medium text-slate-700">{clientCasesCount} Cases</span>
-                       </div>
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-slate-400" />
+                        <span className="font-medium text-slate-700">{clientCasesCount} Cases</span>
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end space-x-2">
-                        <button 
+                        <button
                           onClick={() => openEditModal(client)}
                           className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-indigo-600" title="Edit"
-                         >
+                        >
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button 
-                          onClick={() => { if(window.confirm('Delete this client?')) deleteClient(client.id) }}
+                        <button
+                          onClick={() => { if (window.confirm('Delete this client?')) deleteClient(client.id) }}
                           className="p-2 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-600" title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -170,68 +168,68 @@ const Clients = () => {
                 );
               })}
               {filteredClients.length === 0 && (
-                  <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
-                          {searchTerm ? `No clients found matching "${searchTerm}"` : "No clients found. Click \"Add Client\" to create one."}
-                      </td>
-                  </tr>
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
+                    {searchTerm ? `No clients found matching "${searchTerm}"` : "No clients found. Click \"Add Client\" to create one."}
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
 
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={closeModal} 
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
         title={editingId ? "Edit Client" : "Add New Client"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
-                <input 
-                    type="text" required 
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    placeholder="e.g. Rajesh Kumar"
-                />
-            </div>
-            <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
-                <input 
-                    type="email" required 
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    placeholder="e.g. rajesh@example.com"
-                />
-            </div>
-            <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
-                <input 
-                    type="tel" required 
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                    placeholder="e.g. +91 9876543210"
-                />
-            </div>
-            <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Client Type</label>
-                <select 
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-                    value={formData.type}
-                    onChange={(e) => setFormData({...formData, type: e.target.value as any})}
-                >
-                    <option value="Individual">Individual</option>
-                    <option value="Corporate">Corporate</option>
-                </select>
-            </div>
-            <div className="pt-4 flex gap-3">
-                <button type="button" onClick={closeModal} className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 font-medium">Save Client</button>
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+            <input
+              type="text" required
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="e.g. Rajesh Kumar"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+            <input
+              type="email" required
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="e.g. rajesh@example.com"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
+            <input
+              type="tel" required
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              placeholder="e.g. +91 9876543210"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Client Type</label>
+            <select
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+              value={formData.type}
+              onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+            >
+              <option value="Individual">Individual</option>
+              <option value="Corporate">Corporate</option>
+            </select>
+          </div>
+          <div className="pt-4 flex gap-3">
+            <button type="button" onClick={closeModal} className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium">Cancel</button>
+            <button type="submit" className="flex-1 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 font-medium">Save Client</button>
+          </div>
         </form>
       </Modal>
     </div>

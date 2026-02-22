@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
-import { FileText, Download, UploadCloud, Search, Tag, Image as ImageIcon, Trash2, File, Folder, ChevronRight, ArrowLeft, Eye, MoreVertical, X, FileEdit, PenLine } from 'lucide-react';
+import { FileText, Download, UploadCloud, Search, Image as ImageIcon, Trash2, File, Folder, ChevronRight, FileEdit, PenLine } from 'lucide-react';
 import Modal from './Modal';
 import { LegalDocument } from '../types';
 

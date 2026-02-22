@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Briefcase, Scale, Clock, AlertCircle, ArrowUpRight, ArrowRight, Gavel, Calendar, Edit2 } from 'lucide-react';
+import { Briefcase, Scale, Clock, AlertCircle, ArrowUpRight, ArrowRight, Gavel, Calendar, Edit2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { Link } from 'react-router-dom';
 
@@ -25,7 +25,7 @@ const StatCard: React.FC<{
 );
 
 const Dashboard = () => {
-  const { cases, tasks, documents } = useData();
+  const { cases, tasks, documents, gcalConnected } = useData();
 
   // Memoize calculations to prevent re-runs on unrelated renders
   const stats = useMemo(() => {
@@ -68,13 +68,29 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
           <p className="text-slate-500 mt-1">Welcome back, here's what's happening today.</p>
         </div>
-        <div className="text-sm text-slate-500 bg-white px-3 py-1 rounded-md border border-slate-200">
-          {stats.today.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Google Calendar Sync Status */}
+          {gcalConnected ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">
+              <CheckCircle className="w-3.5 h-3.5" /> Calendar Synced
+            </span>
+          ) : (
+            <Link
+              to="/settings"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors"
+            >
+              <AlertTriangle className="w-3.5 h-3.5" /> Connect Calendar
+            </Link>
+          )}
+          {/* Date */}
+          <div className="text-sm text-slate-500 bg-white px-3 py-1 rounded-md border border-slate-200">
+            {stats.today.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </div>
         </div>
       </div>
 

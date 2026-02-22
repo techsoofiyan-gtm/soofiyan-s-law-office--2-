@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useData } from '../context/DataContext';
-import { Search, Plus, Gavel, Calendar, MapPin, Filter, Trash2, Edit2, Eye, History, Save, X, ChevronRight, Clock, CheckCircle, Shield, BookOpen, CalendarPlus } from 'lucide-react';
+import { Search, Plus, Gavel, Calendar, MapPin, Filter, Trash2, Edit2, History, Save, X, ChevronRight, Clock, Shield, BookOpen, CalendarPlus } from 'lucide-react';
 import { CaseStatus, Case, CaseHearing } from '../types';
 import Modal from './Modal';
 import { openGoogleCalendarEvent } from '../utils/calendarUtils';
@@ -211,7 +211,7 @@ const Cases = () => {
                         <div className="p-5 flex-1">
                             <div className="flex justify-between items-start mb-3">
                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${c.status === CaseStatus.OPEN ? 'bg-green-100 text-green-800' :
-                                        c.status === CaseStatus.CLOSED ? 'bg-slate-100 text-slate-800' : 'bg-amber-100 text-amber-800'
+                                    c.status === CaseStatus.CLOSED ? 'bg-slate-100 text-slate-800' : 'bg-amber-100 text-amber-800'
                                     }`}>
                                     {c.status}
                                 </span>

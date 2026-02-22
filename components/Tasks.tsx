@@ -119,7 +119,7 @@ const Column: React.FC<{
   deleteTask: any,
   onAdd: () => void,
   onEdit: (task: Task) => void
-}> = ({ title, status, tasks, clients, updateTask, deleteTask, onAdd, onEdit }) => (
+}> = ({ title, tasks, clients, updateTask, deleteTask, onAdd, onEdit }) => (
   <div className="flex-1 min-w-[300px] bg-slate-50 rounded-xl p-4 flex flex-col h-full max-h-[calc(100vh-14rem)]">
     <div className="flex items-center justify-between mb-4">
       <h3 className="font-semibold text-slate-700 flex items-center">

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import {
     Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
     List, ListOrdered, Undo2, Redo2, Printer, Type, Palette, Minus, Plus, FileText, Save, Check,
@@ -81,7 +81,6 @@ const AI_TEMPLATES: Record<string, string> = {
 const TextEditor: React.FC = () => {
     const editorRef = useRef<HTMLDivElement>(null);
     const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
     const { documents, addDocument } = useData();
 
     const editId = searchParams.get('id');
